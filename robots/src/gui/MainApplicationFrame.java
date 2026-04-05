@@ -97,11 +97,9 @@ public class MainApplicationFrame extends JFrame
 
         JMenu testMenu = createTestMenu();
 
-        JMenu exitMenu = createExitMenu();
-
         menuBar.add(lookAndFeelMenu);
         menuBar.add(testMenu);
-        menuBar.add(exitMenu);
+        menuBar.add(createExitMenu());
         return menuBar;
     }
 
@@ -147,31 +145,31 @@ public class MainApplicationFrame extends JFrame
         return testMenu;
     }
 
-    private JMenu createExitMenu(){
-        JMenu exitMenu = new JMenu("Выход");
-        exitMenu.setMnemonic(KeyEvent.VK_V);
-        exitMenu.getAccessibleContext().setAccessibleDescription(
+    private JMenuItem createExitMenu() {
+        JMenuItem exitItem = new JMenuItem("Выход");
+        exitItem.setMnemonic(KeyEvent.VK_V);
+        exitItem.getAccessibleContext().setAccessibleDescription(
                 "Завершение программы");
 
-        {
-            JMenuItem exit = new JMenuItem("Выйти", KeyEvent.VK_Q);
-            exit.addActionListener((event) -> {
-                int result = JOptionPane.showConfirmDialog(
-                        this,
-                        "Вы действительно хотите выйти?",
-                        "Подтверждение выхода",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE
-                );
+        exitItem.addActionListener((event) -> {
+            Object[] options = {"Да", "Нет"};
+            int result = JOptionPane.showOptionDialog(
+                    this,
+                    "Вы действительно хотите выйти?",
+                    "Подтверждение выхода",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
 
-                if (result == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
-                this.invalidate();
-            });
-            exitMenu.add(exit);
-        }
-        return exitMenu;
+            if (result == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+
+        return exitItem;
     }
 
     private void setLookAndFeel(String className)
