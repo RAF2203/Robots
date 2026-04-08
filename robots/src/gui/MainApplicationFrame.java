@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
@@ -16,9 +17,11 @@ import log.Logger;
  */
 public class MainApplicationFrame extends JFrame
 {
+    private final WindowSettings settings;
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     public MainApplicationFrame() {
+        settings = WindowSettings.getInstance();
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
         int inset = 50;
@@ -32,13 +35,61 @@ public class MainApplicationFrame extends JFrame
 
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
+        restoreWindow(logWindow);
 
         GameWindow gameWindow = new GameWindow();
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+        restoreWindow(gameWindow);
 
         setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                saveAllWindowsState();
+                System.exit(0);
+            }
+        });
+    }
+
+    private void restoreWindow(JInternalFrame frame){
+        String windowID = null;
+        if (frame instanceof LogWindow) { windowID = ((LogWindow) frame).getWindowID(); }
+        else if (frame instanceof GameWindow) { windowID = ((GameWindow) frame).getWindowID(); }
+
+        if (windowID != null) {
+            WindowSettings.WindowState state = settings.getStateByID(windowID);
+            if (state != null) {
+                Rectangle dimensions = state.getDimensions();
+                try {
+                    frame.setBounds(dimensions);
+                    frame.setIconifiable(state.getFolded());
+                    }
+                catch (Exception _) {
+                    //ignore?
+                }
+            }
+        }
+    }
+
+    private void saveAllWindowsState() {
+        for (JInternalFrame frame : desktopPane.getAllFrames()) {
+            if (frame instanceof LogWindow) {
+                settings.SaveWindowState(
+                        ((LogWindow) frame).getWindowID(),
+                        frame.getBounds(),
+                        frame.isIcon()
+                );
+            } else if (frame instanceof GameWindow) {
+                settings.SaveWindowState(
+                        ((GameWindow) frame).getWindowID(),
+                        frame.getBounds(),
+                        frame.isIcon()
+                );
+            }
+        }
+        settings.saveToFile();
     }
 
     protected LogWindow createLogWindow()
@@ -165,6 +216,7 @@ public class MainApplicationFrame extends JFrame
             );
 
             if (result == JOptionPane.YES_OPTION) {
+                saveAllWindowsState();
                 System.exit(0);
             }
         });

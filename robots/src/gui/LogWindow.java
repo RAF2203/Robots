@@ -13,6 +13,7 @@ import log.LogWindowSource;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener
 {
+    private static final String windowID = "LogWindow";
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
 
@@ -46,5 +47,9 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
     public void onLogChanged()
     {
         EventQueue.invokeLater(this::updateLogContent);
+    }
+
+    public String getWindowID() {
+        return windowID;
     }
 }
