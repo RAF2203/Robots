@@ -31,16 +31,22 @@ public class MainApplicationFrame extends JFrame
                 screenSize.height - inset*2);
 
         setContentPane(desktopPane);
-
+        RobotModel model = new RobotModel();
 
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
         restoreWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
+        GameWindow gameWindow = new GameWindow(model);
+        gameWindow.setSize(800,  800);
         addWindow(gameWindow);
         restoreWindow(gameWindow);
+
+        PositionWindow positionWindow = new PositionWindow();
+        positionWindow.setSize(400, 200);
+        positionWindow.setRobotModel(model);
+        addWindow(positionWindow);
+        restoreWindow(positionWindow);
 
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -57,6 +63,7 @@ public class MainApplicationFrame extends JFrame
         String windowID = null;
         if (frame instanceof LogWindow) { windowID = ((LogWindow) frame).getWindowID(); }
         else if (frame instanceof GameWindow) { windowID = ((GameWindow) frame).getWindowID(); }
+        else if (frame instanceof PositionWindow) { windowID = ((PositionWindow) frame).getWindowID(); }
 
         if (windowID != null) {
             WindowSettings.WindowState state = settings.getStateByID(windowID);
@@ -84,6 +91,12 @@ public class MainApplicationFrame extends JFrame
             } else if (frame instanceof GameWindow) {
                 settings.SaveWindowState(
                         ((GameWindow) frame).getWindowID(),
+                        frame.getBounds(),
+                        frame.isIcon()
+                );
+            } else if (frame instanceof PositionWindow) {
+                settings.SaveWindowState(
+                        ((PositionWindow) frame).getWindowID(),
                         frame.getBounds(),
                         frame.isIcon()
                 );
